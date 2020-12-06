@@ -1,7 +1,6 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: blue; icon-glyph: calendar-alt;
-
 /* ---------------------------------------------------*/
 /*              COMPACT CALENDAR WIDGET               */
 /*              Show next running events              */
@@ -9,7 +8,13 @@
 /* -------------------------------------------------- */
 
 /*****************
-Version 1.0.0
+Version 1.0.1
+
+Changelog:
+----------
+
+Version 1.0.1:
+    Fixed displaying of the age from birthday events.
 
 If you have problems or need help, please ask for support here:
 https://github.com/BergenSoft/scriptable_calendar_compact
@@ -19,9 +24,9 @@ https://github.com/BergenSoft/scriptable_calendar_compact
 
 //  WIDGET SETTINGS
 // Widget behaviour
-const testMode = true  // Change to true to see a preview of your widget and for the first start to get calendar access.
+const testMode = false  // Change to true to see a preview of your widget and for the first start to get calendar access.
 const calendarsNames = ["Calendar 1", "Calendar 2"]; // set to null or [] to use all events
-const birthdayCalendarName = "Birthdays";
+const birthdayCalendarName = "Geburtstage";
 const switchBirthdayNames = false; // Switch to true if you want to swap first and last name abbreviation
 const showBirthdays = true;        // set to false if you don't want to see birthdays
 const maxCountLines = 9;           // max lines to show in widget.
@@ -68,8 +73,8 @@ if (config.runsInWidget || testMode)
     // Create Widget
     let widget = await createWidget();
     Script.setWidget(widget);
-    await widget.presentLarge();
     Script.complete();
+    await widget.presentLarge();
 
     async function createWidget()
     {
@@ -91,12 +96,8 @@ if (config.runsInWidget || testMode)
             let filteredEvents = [];
             let filteredBirthdays = [];
 
-            console.log(dateStart.toString());
-
             for (const event of events)
             {
-
-                console.log(event.title);
                 // filter out canceled events and already pasts events
                 if (event.endDate.getTime() < todayDate.getTime() || event.title.startsWith("Canceled:"))
                     continue;
@@ -289,7 +290,7 @@ if (config.runsInWidget || testMode)
     {
         if (switchBirthdayNames)
         {
-            const regexp = /([^ ,.]*)[^ ,.]* ([A-Za-z])[, ]*([0-9]+)?/;
+            const regexp = /([^ ,.]*)[^ ,.]* ([A-Za-z])[^\(]*\(([0-9]+)?/;
             const groups = title.match(regexp);
 
             if (groups[3] == null)
@@ -298,7 +299,7 @@ if (config.runsInWidget || testMode)
         }
         else    
         {
-            const regexp = /([A-Za-z])[^ ,.]* ([^ ,.]*)[, ]*([0-9]+)?/;
+            const regexp = /([A-Za-z])[^ ,.]* ([^ ,.]*)[^\(]*\(([0-9]+)?/;
             const groups = title.match(regexp);
 
             if (groups[3] == null)
